@@ -12,7 +12,7 @@ import com.aerohive.association.domain.DeviceStatus;
 	
 
 /**
- * @author GS-1044
+ * @author piyush soni
  *
  * @param <T>
  */
