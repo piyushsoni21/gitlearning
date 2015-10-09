@@ -20,7 +20,7 @@ import com.aerohive.association.domain.DeviceStatus;
 public class AppTest<T> {
 
 	
-	
+	//For Redis
 	@Autowired
 	private RedisTemplate<String,T> redisTemplate;
 
