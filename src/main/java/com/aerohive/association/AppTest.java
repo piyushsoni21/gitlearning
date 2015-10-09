@@ -14,7 +14,7 @@ import com.aerohive.association.domain.DeviceStatus;
 /**
  * @author piyush soni
  *
- * @param <T>
+ * 
  */
 
 public class AppTest<T> {
