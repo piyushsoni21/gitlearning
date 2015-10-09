@@ -1,0 +1,84 @@
+<?xml  version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+        
+	<import resource="classpath*:hiveagentassociationmodule-context.xml" />
+	<context:component-scan base-package="com.gslab.aerohive" />
+
+	    
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		p:location="jdbc.properties" />
+
+	<!-- <bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource" 
+		p:driverClassName="${psql.driverClassName}"
+		p:url="${psql.databaseurl}" p:username="${psql.username}"
+		p:password="${psql.password}" />
+ -->
+
+	 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close" primary="true">
+        <property name="driverClass" value="${psql.driverClassName}" />
+        <property name="jdbcUrl" value="${psql.databaseurl}" />
+        <property name="user" value="${psql.username}" />
+        <property name="password" value="${psql.password}" />
+        <property name="maxPoolSize" value="15" />
+    </bean>
+	 <!-- This produces a container-managed EntityManagerFactory; 
+    	 rather than application-managed EntityManagerFactory as in case of LocalEntityManagerFactoryBean-->
+    <bean id="entityManagerFactoryBean" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+      <property name="dataSource" ref="dataSource" />
+      <!-- This makes /META-INF/persistence.xml is no longer necessary -->
+      <property name="packagesToScan" value="com.gslab.aerohive.domain" />
+      <!-- JpaVendorAdapter implementation for Hibernate EntityManager.
+      	   Exposes Hibernate's persistence provider and EntityManager extension interface -->
+      <property name="jpaVendorAdapter">
+         <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+      </property>
+      <property name="jpaProperties">
+         <props>
+            <prop key="hibernate.hbm2ddl.auto">validate</prop>
+            <prop key="hibernate.dialect">${psql.dialect}</prop>
+            
+         </props>
+      </property>
+   </bean>
+ 
+		 <!-- This transaction manager is appropriate for applications that use a single JPA EntityManagerFactory for transactional data access. 
+    	JTA (usually through JtaTransactionManager) is necessary for accessing multiple transactional resources within the same transaction. -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+      <property name="entityManagerFactory" ref="entityManagerFactoryBean" />
+   </bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+    
+    <!-- Jedis Connection Factory -->
+	<bean id="jedisConnFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+			p:host-name='localhost'
+        	p:port='6379'
+			p:use-pool="true" />
+	<!-- Redis Template -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+			p:connection-factory-ref="jedisConnFactory" />
+    
+	
+    <!-- declare Redis Cache Manager -->
+    <bean
+        id='cacheManager'
+        class='org.springframework.data.redis.cache.RedisCacheManager'
+        c:template-ref='redisTemplate'/>
+	<mvc:annotation-driven />
+
+</beans>

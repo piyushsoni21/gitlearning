@@ -1,0 +1,9 @@
+{
+"hiveAgentSerialNumber":"12345678",
+"hiveAgentState":1,
+"haPollFreq":10,
+"msgRetryCount":3,
+"hmngRestUrl":"http://hostname:portname/HiveManager/pollRequest",
+"Name":"Piyush Soni",
+"Team":"Aerohive"
+}
